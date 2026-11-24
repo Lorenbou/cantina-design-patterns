@@ -26,8 +26,8 @@ Os dados ficam apenas em memória, sem banco de dados.
 ## Tecnologias e pré-requisitos
 
 - **Java 17 ou superior** (JDK)
-- **Maven 3.8+** (opcional: dá para rodar só com `javac`/`java`)
-- Nenhuma dependência externa
+- **Maven 3.8+** (opcional para executar: dá para rodar só com `javac`/`java`; necessário para rodar os testes)
+- A aplicação não tem dependências externas; os testes usam **JUnit 5**, baixado automaticamente pelo Maven
 
 ## Como executar
 
@@ -46,7 +46,7 @@ mvn compile exec:java -Dexec.args="--demo"
 ### Sem Maven (só com o JDK)
 
 ```bash
-javac -d out $(find src -name "*.java")
+javac -d out $(find src/main -name "*.java")
 java -cp out cantina.Main          # menu interativo
 java -cp out cantina.Main --demo   # demonstração automática
 ```
@@ -54,9 +54,21 @@ java -cp out cantina.Main --demo   # demonstração automática
 No Windows (PowerShell):
 
 ```powershell
-javac -d out (Get-ChildItem -Recurse src -Filter *.java).FullName
+javac -d out (Get-ChildItem -Recurse src/main -Filter *.java).FullName
 java -cp out cantina.Main
 ```
+
+Os comandos compilam só `src/main`, porque os testes em `src/test` dependem do JUnit.
+
+## Como testar
+
+Os testes automatizados usam JUnit 5 e rodam pelo Maven:
+
+```bash
+mvn test
+```
+
+`PedidoBuilderTest` verifica o Builder: criação de um pedido válido, erro ao montar sem cliente ou sem itens, soma da quantidade quando o mesmo produto é adicionado duas vezes e cálculo do total.
 
 ## Exemplos de uso
 
@@ -172,12 +184,18 @@ src/main/java/cantina/
     ├── RemoverItemCommand.java
     ├── FinalizarPedidoCommand.java
     └── Atendente.java           # Invoker
+
+src/test/java/cantina/
+└── builder/
+    └── PedidoBuilderTest.java   # testes do Builder (JUnit 5)
 ```
 
 ## Declaração de uso de IA
 
-- **Modelo:** Claude Opus 5.5 (Anthropic), usado pelo Claude Code.
-- **Onde foi usada:** geração da estrutura inicial do projeto (classes de modelo, `PedidoBuilder`, comandos, `Atendente`, menu de console) e rascunho deste README.
+- **Modelos:** Claude Opus 5.5 e Claude Fable 5.2 (Anthropic), usados pelo Claude Code.
+- **Onde foi usada:**
+  - Claude Opus 5.5: geração da estrutura inicial do projeto (classes de modelo, `PedidoBuilder`, comandos, `Atendente`, menu de console) e rascunho deste README.
+  - Claude Fable 5.2: configuração do JUnit 5 no `pom.xml`, geração dos testes do Builder (`PedidoBuilderTest`) e atualização deste README com a seção de testes.
 - **O que a equipe fez:** <!-- TODO: descrevam o que revisaram, ajustaram e testaram -->
 
 ## Contribuição dos integrantes
@@ -187,6 +205,6 @@ src/main/java/cantina/
 | Integrante | GitHub | Contribuição |
 |---|---|---|
 | Lorenzo Severo Gotuzzo | [@Lorenbou](https://github.com/Lorenbou) | Criação do repositório e configuração do projeto Maven; implementação das entidades (`Produto`, `Pedido`, `ItemPedido`, `Cardapio`), do Builder (`PedidoBuilder`), do Command (`Comando`, comandos concretos e `Atendente`) e do menu de console; README. |
-| Gabriel Minatto Guedin | @minattinho(https://github.com/minattinho) | Revisão do código |
+| Gabriel Minatto Guedin | [@minattinho](https://github.com/minattinho) | Revisão do código; configuração do JUnit 5 no `pom.xml` (dependência `junit-jupiter` e `maven-surefire-plugin`); testes automatizados do Builder em `PedidoBuilderTest` (pedido válido com cliente, tipo e itens corretos, erro ao montar sem cliente ou sem itens, soma da quantidade de produto repetido e cálculo do total). |
 | Anderson Santos | [@andsantosx](https://github.com/andsantosx) | Testes de execução (`--demo` e menu interativo) e revisão dos patterns Builder e Command |
 | Nome 4 | @usuario4 | |
