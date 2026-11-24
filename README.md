@@ -82,6 +82,7 @@ mvn test
 2 - Novo pedido
 3 - Listar pedidos
 4 - Abrir pedido existente
+5 - Relatório do dia
 0 - Sair
 Opção: 2
 Nome do cliente: Carlos
@@ -104,6 +105,29 @@ Total: R$ 18,00
 6 - Finalizar pedido
 0 - Voltar
 ```
+
+### Relatório do dia (opção 5)
+
+Apresenta um resumo de todos os pedidos registrados desde a abertura do sistema, incluindo a quantidade de pedidos concluídos, a quantidade que ainda está em andamento, o valor total das vendas e o item mais vendido.
+
+Importante: o cálculo do faturamento e a identificação do produto mais vendido levam em conta somente os pedidos com status FINALIZADO, já que os pedidos em aberto ainda podem sofrer alterações ou ter ações desfeitas.
+
+Exemplo:
+
+Pedido finalizado: Carlos – 1 Xis Salada + 2 Pães de Queijo.
+
+Pedido em aberto: Bia – 3 Pães de Queijo.
+
+```
+Opção: 5
+--- Relatório do dia ---
+Pedidos finalizados: 1
+Pedidos em aberto: 1
+Faturamento total: R$ 27,00
+Produto mais vendido: Pão de queijo (2 unidades)
+```
+
+Sem nenhum pedido, mostra `Nenhum pedido ainda.`
 
 ### Demonstração (`--demo`)
 
@@ -201,15 +225,14 @@ src/test/java/cantina/
   - Claude Opus 5.5: geração da estrutura inicial do projeto (classes de modelo, `PedidoBuilder`, comandos, `Atendente`, menu de console) e rascunho deste README.
   - Claude Fable 5.2: configuração do JUnit 5 no `pom.xml`, geração dos testes do Builder (`PedidoBuilderTest`) e atualização deste README com a seção de testes.
   - Gemini (Antigravity): geração dos testes do Command (`ComandosTest`) e atualização deste README.
+  - Claude Opus 5.5: orientação e geração do método `relatorioDoDia()` (opção "5 - Relatório do dia" no `Main.java`).
 - **O que a equipe fez:** <!-- TODO: descrevam o que revisaram, ajustaram e testaram -->
 
 ## Contribuição dos integrantes
-
-<!-- TODO: preencher com nome, usuário do GitHub e o que cada um fez -->
 
 | Integrante | GitHub | Contribuição |
 |---|---|---|
 | Lorenzo Severo Gotuzzo | [@Lorenbou](https://github.com/Lorenbou) | Criação do repositório e configuração do projeto Maven; implementação das entidades (`Produto`, `Pedido`, `ItemPedido`, `Cardapio`), do Builder (`PedidoBuilder`), do Command (`Comando`, comandos concretos e `Atendente`) e do menu de console; README. |
 | Gabriel Minatto Guedin | [@minattinho](https://github.com/minattinho) | Revisão do código; configuração do JUnit 5 no `pom.xml` (dependência `junit-jupiter` e `maven-surefire-plugin`); testes automatizados do Builder em `PedidoBuilderTest` (pedido válido com cliente, tipo e itens corretos, erro ao montar sem cliente ou sem itens, soma da quantidade de produto repetido e cálculo do total). |
 | Anderson Santos | [@andsantosx](https://github.com/andsantosx) | Revisão do código e testes de execução (`--demo` e menu interativo); testes automatizados do Command em `ComandosTest` (`AdicionarItemCommand`, `RemoverItemCommand`, `FinalizarPedidoCommand`, `Atendente` e histórico sem comandos com erro) e atualização do README. |
-| Nome 4 | @usuario4 | |
+| Isabela Madeira José | [@isabelamadeirajose](https://github.com/isabelamadeirajose) | Opção "5 - Relatório do dia" no menu principal (`relatorioDoDia()` no `Main.java`): quantidade de pedidos finalizados e em aberto, faturamento total dos pedidos finalizados e produto mais vendido; testes manuais no menu; atualização do README (exemplo de uso do relatório). |

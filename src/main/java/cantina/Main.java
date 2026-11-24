@@ -7,9 +7,11 @@ import cantina.command.Comando;
 import cantina.command.FinalizarPedidoCommand;
 import cantina.command.RemoverItemCommand;
 import cantina.model.Cardapio;
+import cantina.model.ItemPedido;
 import cantina.model.Pedido;
 import cantina.model.Produto;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +55,7 @@ public class Main {
             System.out.println("2 - Novo pedido");
             System.out.println("3 - Listar pedidos");
             System.out.println("4 - Abrir pedido existente");
+            System.out.println("5 - Relatório do dia");
             System.out.println("0 - Sair");
             int opcao = lerInteiro("Opção: ");
             switch (opcao) {
@@ -60,6 +63,7 @@ public class Main {
                 case 2 -> novoPedido();
                 case 3 -> listarPedidos();
                 case 4 -> abrirPedidoExistente();
+                case 5 -> relatorioDoDia();
                 case 0 -> {
                     System.out.println("Até mais!");
                     return;
@@ -137,6 +141,54 @@ public class Main {
             return;
         }
         atenderPedido(pedido);
+    }
+
+    /**
+     * Relatório do dia: só consulta os pedidos em memória, não altera nada.
+     * Faturamento e produto mais vendido contam apenas pedidos FINALIZADOS.
+     */
+    private void relatorioDoDia() {
+        System.out.println("--- Relatório do dia ---");
+        if (pedidos.isEmpty()) {
+            System.out.println("Nenhum pedido ainda.");
+            return;
+        }
+
+        int finalizados = 0;
+        int emAberto = 0;
+        BigDecimal faturamento = BigDecimal.ZERO;
+        Map<Produto, Integer> quantidadeVendida = new LinkedHashMap<>();
+
+        for (Pedido pedido : pedidos.values()) {
+            if (pedido.getStatus() == Pedido.Status.FINALIZADO) {
+                finalizados++;
+                faturamento = faturamento.add(pedido.total());
+                for (ItemPedido item : pedido.getItens()) {
+                    quantidadeVendida.merge(item.getProduto(), item.getQuantidade(), Integer::sum);
+                }
+            } else {
+                emAberto++;
+            }
+        }
+
+        System.out.println("Pedidos finalizados: " + finalizados);
+        System.out.println("Pedidos em aberto: " + emAberto);
+        System.out.printf("Faturamento total: R$ %.2f%n", faturamento);
+
+        Produto maisVendido = null;
+        int maiorQuantidade = 0;
+        for (Map.Entry<Produto, Integer> entrada : quantidadeVendida.entrySet()) {
+            if (entrada.getValue() > maiorQuantidade) {
+                maisVendido = entrada.getKey();
+                maiorQuantidade = entrada.getValue();
+            }
+        }
+        if (maisVendido == null) {
+            System.out.println("Produto mais vendido: nenhum pedido finalizado ainda.");
+        } else {
+            System.out.println("Produto mais vendido: " + maisVendido.getNome()
+                    + " (" + maiorQuantidade + " unidades)");
+        }
     }
 
     // ------------------------------------------------------------------
