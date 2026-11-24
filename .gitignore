@@ -1,0 +1,19 @@
+# Build
+target/
+out/
+build/
+.gradle/
+*.class
+*.jar
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
+# SO
+.DS_Store
+Thumbs.db
