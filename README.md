@@ -186,7 +186,7 @@ src/main/java/cantina/
 
 | Integrante | GitHub | Contribuição |
 |---|---|---|
-| Nome 1 | @usuario1 | |
+| Lorenzo Severo Gotuzzo | [@Lorenbou](https://github.com/Lorenbou) | Criação do repositório e configuração do projeto Maven; implementação das entidades (`Produto`, `Pedido`, `ItemPedido`, `Cardapio`), do Builder (`PedidoBuilder`), do Command (`Comando`, comandos concretos e `Atendente`) e do menu de console; README. |
 | Nome 2 | @usuario2 | |
 | Nome 3 | @usuario3 | |
 | Nome 4 | @usuario4 | |
