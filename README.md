@@ -70,6 +70,8 @@ mvn test
 
 `PedidoBuilderTest` verifica o Builder: criação de um pedido válido, erro ao montar sem cliente ou sem itens, soma da quantidade quando o mesmo produto é adicionado duas vezes e cálculo do total.
 
+`ComandosTest` verifica o Command: adicionar/remover itens e desfazer (devolvendo o item removido com a mesma quantidade), finalizar e reabrir pedido ao desfazer, erro ao desfazer com histórico vazio e garantia de que comandos que falham não entram no histórico.
+
 ## Exemplos de uso
 
 ### Menu interativo
@@ -186,16 +188,19 @@ src/main/java/cantina/
     └── Atendente.java           # Invoker
 
 src/test/java/cantina/
-└── builder/
-    └── PedidoBuilderTest.java   # testes do Builder (JUnit 5)
+├── builder/
+│   └── PedidoBuilderTest.java   # testes do Builder (JUnit 5)
+└── command/
+    └── ComandosTest.java        # testes do Command (JUnit 5)
 ```
 
 ## Declaração de uso de IA
 
-- **Modelos:** Claude Opus 5.5 e Claude Fable 5.2 (Anthropic), usados pelo Claude Code.
+- **Modelos:** Claude Opus 5.5, Claude Fable 5.2 (Anthropic) e Gemini (Google / Antigravity).
 - **Onde foi usada:**
   - Claude Opus 5.5: geração da estrutura inicial do projeto (classes de modelo, `PedidoBuilder`, comandos, `Atendente`, menu de console) e rascunho deste README.
   - Claude Fable 5.2: configuração do JUnit 5 no `pom.xml`, geração dos testes do Builder (`PedidoBuilderTest`) e atualização deste README com a seção de testes.
+  - Gemini (Antigravity): geração dos testes do Command (`ComandosTest`) e atualização deste README.
 - **O que a equipe fez:** <!-- TODO: descrevam o que revisaram, ajustaram e testaram -->
 
 ## Contribuição dos integrantes
@@ -206,5 +211,5 @@ src/test/java/cantina/
 |---|---|---|
 | Lorenzo Severo Gotuzzo | [@Lorenbou](https://github.com/Lorenbou) | Criação do repositório e configuração do projeto Maven; implementação das entidades (`Produto`, `Pedido`, `ItemPedido`, `Cardapio`), do Builder (`PedidoBuilder`), do Command (`Comando`, comandos concretos e `Atendente`) e do menu de console; README. |
 | Gabriel Minatto Guedin | [@minattinho](https://github.com/minattinho) | Revisão do código; configuração do JUnit 5 no `pom.xml` (dependência `junit-jupiter` e `maven-surefire-plugin`); testes automatizados do Builder em `PedidoBuilderTest` (pedido válido com cliente, tipo e itens corretos, erro ao montar sem cliente ou sem itens, soma da quantidade de produto repetido e cálculo do total). |
-| Anderson Santos | [@andsantosx](https://github.com/andsantosx) | Testes de execução (`--demo` e menu interativo) e revisão dos patterns Builder e Command |
+| Anderson Santos | [@andsantosx](https://github.com/andsantosx) | Revisão do código e testes de execução (`--demo` e menu interativo); testes automatizados do Command em `ComandosTest` (`AdicionarItemCommand`, `RemoverItemCommand`, `FinalizarPedidoCommand`, `Atendente` e histórico sem comandos com erro) e atualização do README. |
 | Nome 4 | @usuario4 | |
