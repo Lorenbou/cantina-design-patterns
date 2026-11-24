@@ -188,5 +188,5 @@ src/main/java/cantina/
 |---|---|---|
 | Lorenzo Severo Gotuzzo | [@Lorenbou](https://github.com/Lorenbou) | Criação do repositório e configuração do projeto Maven; implementação das entidades (`Produto`, `Pedido`, `ItemPedido`, `Cardapio`), do Builder (`PedidoBuilder`), do Command (`Comando`, comandos concretos e `Atendente`) e do menu de console; README. |
 | Gabriel Minatto Guedin | @minattinho(https://github.com/minattinho) | Revisão do código |
-| Nome 3 | @usuario3 | |
+| Anderson Santos | [@andsantosx](https://github.com/andsantosx) | Testes de execução (`--demo` e menu interativo) e revisão dos patterns Builder e Command |
 | Nome 4 | @usuario4 | |
