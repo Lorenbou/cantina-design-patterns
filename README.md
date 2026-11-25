@@ -226,7 +226,7 @@ src/test/java/cantina/
   - Claude Fable 5.2: configuração do JUnit 5 no `pom.xml`, geração dos testes do Builder (`PedidoBuilderTest`) e atualização deste README com a seção de testes.
   - Gemini (Antigravity): geração dos testes do Command (`ComandosTest`) e atualização deste README.
   - Claude Opus 5.5: orientação e geração do método `relatorioDoDia()` (opção "5 - Relatório do dia" no `Main.java`).
-- **O que a equipe fez:** <!-- TODO: descrevam o que revisaram, ajustaram e testaram -->
+
 
 ## Contribuição dos integrantes
 
