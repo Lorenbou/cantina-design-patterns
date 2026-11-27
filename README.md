@@ -8,7 +8,7 @@ Aplicação de console para registrar pedidos em uma cantina. O atendente:
 
 1. consulta o cardápio;
 2. monta um novo pedido passo a passo (cliente, consumo no local ou para viagem, observação e itens);
-3. altera o pedido depois de criado (adicionar ou remover itens), podendo **desfazer** a última ação;
+3. altera o pedido depois de criado (adicionar ou remover itens, aplicar cupom de desconto), podendo **desfazer** a última ação;
 4. finaliza o pedido, que a partir daí não aceita mais alterações (a finalização também pode ser desfeita, reabrindo o pedido).
 
 Os dados ficam apenas em memória, sem banco de dados.
@@ -20,6 +20,7 @@ Os dados ficam apenas em memória, sem banco de dados.
 | `Produto` | Item do cardápio (código, nome, preço). |
 | `Pedido` | Pedido de um cliente: tipo de consumo, observação, itens, status e total. |
 | `ItemPedido` | Um produto dentro do pedido, com quantidade e subtotal. |
+| `Cupom` | Cupom de desconto do pedido (código e porcentagem). |
 
 `Cardapio` é só a lista fixa de produtos disponíveis.
 
@@ -103,8 +104,28 @@ Total: R$ 18,00
 4 - Ver pedido
 5 - Ver histórico de ações
 6 - Finalizar pedido
+7 - Aplicar cupom de desconto
 0 - Voltar
+Opção: 7
+Código do cupom: aluno10
+Percentual de desconto: 10
+OK: Aplicar cupom ALUNO10 (-10%)
+...
+Opção: 4
+Pedido #1 | Cliente: Carlos | LOCAL | ABERTO
+  1x Xis salada = R$ 18,00
+Cupom: ALUNO10 (-10%) = - R$ 1,80
+Total: R$ 16,20
+...
+Opção: 3
+Desfeito: Aplicar cupom ALUNO10 (-10%)
 ```
+
+### Cupom de desconto (opção 7)
+
+Pede o código do cupom e a porcentagem de desconto, e aplica no pedido. O código fica sempre em maiúsculo e a porcentagem tem que ser de 1 a 100. Se aplicar outro cupom, ele substitui o que estava antes. Desfazendo (opção 3), volta o cupom anterior, ou o pedido fica sem cupom se não tinha nenhum. Depois de finalizado, o pedido não aceita mais cupom.
+
+O total do pedido já sai com o desconto, então a listagem e o relatório do dia também mostram o valor com desconto.
 
 ### Relatório do dia (opção 5)
 
@@ -176,6 +197,15 @@ Pedido pedido = new PedidoBuilder()
 
 **Como estender:** para criar um novo passo de montagem, adicione um método no `PedidoBuilder` que guarde o valor e retorne `this`, e repasse esse valor ao `Pedido` no `build()`.
 
+Na extensão do cupom foi criado mais um builder, o `Cupom.Builder` (dentro de `model.Cupom`). Ele funciona igual ao do pedido: o cupom só pode ser criado por `Cupom.builder()`, e o `build()` não deixa criar sem código ou com porcentagem fora de 1 a 100.
+
+```java
+Cupom cupom = Cupom.builder()
+        .codigo("aluno10")
+        .percentual(10)
+        .build();
+```
+
 ### Command
 
 **Classes:**
@@ -183,7 +213,7 @@ Pedido pedido = new PedidoBuilder()
 | Papel no pattern | Classe |
 |---|---|
 | Command (interface) | `command.Comando` (`executar()`, `desfazer()`, `descricao()`) |
-| Comandos concretos | `AdicionarItemCommand`, `RemoverItemCommand`, `FinalizarPedidoCommand` |
+| Comandos concretos | `AdicionarItemCommand`, `RemoverItemCommand`, `FinalizarPedidoCommand`, `AplicarCupomCommand` |
 | Invoker | `command.Atendente` (executa e guarda o histórico) |
 | Receiver | `model.Pedido` |
 | Client | `Main` (cria os comandos a partir das opções do menu) |
@@ -191,6 +221,16 @@ Pedido pedido = new PedidoBuilder()
 **Problema resolvido:** cada ação sobre o pedido vira um **objeto**. O `Atendente` executa qualquer comando sem saber o que ele faz, guarda o histórico e consegue **desfazer** a última ação. Cada comando sabe desfazer a si mesmo: por exemplo, `RemoverItemCommand` guarda o item removido para conseguir devolvê-lo. Um comando só entra no histórico se for executado sem erro.
 
 **Como estender:** para criar um novo comando, implemente `Comando` com `executar()` e `desfazer()` e adicione uma opção no menu que o envie ao `Atendente`. O `Atendente` não precisa ser alterado.
+
+## Extensão: cupom de desconto
+
+Como extensão, adicionamos um cupom de desconto no pedido. O cupom tem um código (por exemplo `ALUNO10`) e uma porcentagem de desconto, que é calculada em cima do subtotal dos itens. No menu do pedido tem a opção 7 para aplicar o cupom, e dá para desfazer com a opção 3 como as outras ações.
+
+No Builder, criamos o `Cupom` do mesmo jeito que o `Pedido`: o construtor é privado e o cupom só é criado pelo `Cupom.builder()`. A validação fica no `build()`, que não aceita cupom sem código nem porcentagem fora de 1 a 100.
+
+No Command, criamos o `AplicarCupomCommand`. Quando executa, ele guarda o cupom que o pedido tinha antes e aplica o novo. No desfazer, ele coloca de volta o cupom antigo, ou tira o cupom se o pedido não tinha nenhum. Com isso dá para aplicar vários cupons e ir desfazendo um por um. Não precisamos mexer no `Atendente`, só criar o comando e colocar a opção no menu.
+
+No `Pedido`, entraram os métodos `aplicarCupom()`, `removerCupom()`, `getCupom()`, `subtotal()` e `desconto()`. O `total()` agora é o subtotal menos o desconto, e o resumo do pedido mostra uma linha com o cupom. Assim como os itens, o cupom só pode ser mudado enquanto o pedido está aberto.
 
 ## Estrutura do projeto
 
@@ -201,7 +241,8 @@ src/main/java/cantina/
 │   ├── Produto.java
 │   ├── Pedido.java
 │   ├── ItemPedido.java
-│   └── Cardapio.java
+│   ├── Cardapio.java
+│   └── Cupom.java               # cupom de desconto e seu Builder
 ├── builder/
 │   └── PedidoBuilder.java       # Builder
 └── command/
@@ -209,6 +250,7 @@ src/main/java/cantina/
     ├── AdicionarItemCommand.java
     ├── RemoverItemCommand.java
     ├── FinalizarPedidoCommand.java
+    ├── AplicarCupomCommand.java # aplica o cupom no pedido
     └── Atendente.java           # Invoker
 
 src/test/java/cantina/
@@ -230,9 +272,17 @@ src/test/java/cantina/
 
 ## Contribuição dos integrantes
 
+### Equipe dona
+
 | Integrante | GitHub | Contribuição |
 |---|---|---|
 | Lorenzo Severo Gotuzzo | [@Lorenbou](https://github.com/Lorenbou) | Criação do repositório e configuração do projeto Maven; implementação das entidades (`Produto`, `Pedido`, `ItemPedido`, `Cardapio`), do Builder (`PedidoBuilder`), do Command (`Comando`, comandos concretos e `Atendente`) e do menu de console; README. |
 | Gabriel Minatto Guedin | [@minattinho](https://github.com/minattinho) | Revisão do código; configuração do JUnit 5 no `pom.xml` (dependência `junit-jupiter` e `maven-surefire-plugin`); testes automatizados do Builder em `PedidoBuilderTest` (pedido válido com cliente, tipo e itens corretos, erro ao montar sem cliente ou sem itens, soma da quantidade de produto repetido e cálculo do total). |
 | Anderson Santos | [@andsantosx](https://github.com/andsantosx) | Revisão do código e testes de execução (`--demo` e menu interativo); testes automatizados do Command em `ComandosTest` (`AdicionarItemCommand`, `RemoverItemCommand`, `FinalizarPedidoCommand`, `Atendente` e histórico sem comandos com erro) e atualização do README. |
 | Isabela Madeira José | [@isabelamadeirajose](https://github.com/isabelamadeirajose) | Opção "5 - Relatório do dia" no menu principal (`relatorioDoDia()` no `Main.java`): quantidade de pedidos finalizados e em aberto, faturamento total dos pedidos finalizados e produto mais vendido; testes manuais no menu; atualização do README (exemplo de uso do relatório). |
+
+### Equipe extensora
+
+| Integrante | GitHub | Contribuição |
+|---|---|---|
+| Mateus Leal Hemkemeier | [@mateuslh](https://github.com/mateuslh) | Cupom de desconto: classe `Cupom` com Builder, `AplicarCupomCommand` (com desfazer), alterações no `Pedido` para calcular subtotal, desconto e total, opção "7 - Aplicar cupom de desconto" no menu e atualização do README. |
