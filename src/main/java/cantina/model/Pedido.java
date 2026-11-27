@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Pedido feito na cantina.
@@ -24,6 +26,7 @@ public class Pedido {
     private final String observacao;
     private final List<ItemPedido> itens = new ArrayList<>();
     private Status status = Status.ABERTO;
+    private Cupom cupom;
 
     public Pedido(int numero, String cliente, TipoConsumo tipoConsumo,
                   String observacao, List<ItemPedido> itens) {
@@ -88,10 +91,28 @@ public class Pedido {
         status = Status.ABERTO;
     }
 
-    public BigDecimal total() {
+    public void aplicarCupom(Cupom cupom) {
+        garantirAberto();
+        this.cupom = Objects.requireNonNull(cupom, "O cupom é obrigatório.");
+    }
+
+    public void removerCupom() {
+        garantirAberto();
+        this.cupom = null;
+    }
+
+    public BigDecimal subtotal() {
         return itens.stream()
                 .map(ItemPedido::subtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public BigDecimal desconto() {
+        return cupom == null ? BigDecimal.ZERO : cupom.desconto(subtotal());
+    }
+
+    public BigDecimal total() {
+        return subtotal().subtract(desconto());
     }
 
     private ItemPedido buscarItem(Produto produto) {
@@ -127,6 +148,10 @@ public class Pedido {
         return status;
     }
 
+    public Optional<Cupom> getCupom() {
+        return Optional.ofNullable(cupom);
+    }
+
     public List<ItemPedido> getItens() {
         return Collections.unmodifiableList(itens);
     }
@@ -143,6 +168,9 @@ public class Pedido {
         }
         for (ItemPedido item : itens) {
             sb.append("  ").append(item).append(System.lineSeparator());
+        }
+        if (cupom != null) {
+            sb.append(String.format("Cupom: %s = - R$ %.2f%n", cupom, desconto()));
         }
         sb.append(String.format("Total: R$ %.2f", total()));
         return sb.toString();

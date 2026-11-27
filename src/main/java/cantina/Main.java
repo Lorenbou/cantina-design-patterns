@@ -2,11 +2,13 @@ package cantina;
 
 import cantina.builder.PedidoBuilder;
 import cantina.command.AdicionarItemCommand;
+import cantina.command.AplicarCupomCommand;
 import cantina.command.Atendente;
 import cantina.command.Comando;
 import cantina.command.FinalizarPedidoCommand;
 import cantina.command.RemoverItemCommand;
 import cantina.model.Cardapio;
+import cantina.model.Cupom;
 import cantina.model.ItemPedido;
 import cantina.model.Pedido;
 import cantina.model.Produto;
@@ -206,6 +208,7 @@ public class Main {
             System.out.println("4 - Ver pedido");
             System.out.println("5 - Ver histórico de ações");
             System.out.println("6 - Finalizar pedido");
+            System.out.println("7 - Aplicar cupom de desconto");
             System.out.println("0 - Voltar");
             int opcao = lerInteiro("Opção: ");
             try {
@@ -230,6 +233,7 @@ public class Main {
                     case 4 -> System.out.println(pedido.resumo());
                     case 5 -> mostrarHistorico(atendente.historico());
                     case 6 -> executar(atendente, new FinalizarPedidoCommand(pedido));
+                    case 7 -> executar(atendente, new AplicarCupomCommand(pedido, lerCupom()));
                     case 0 -> {
                         return;
                     }
@@ -254,6 +258,13 @@ public class Main {
             return null;
         }
         return produto.get();
+    }
+
+    private Cupom lerCupom() {
+        return Cupom.builder()
+                .codigo(lerTexto("Código do cupom: "))
+                .percentual(lerInteiro("Percentual de desconto: "))
+                .build();
     }
 
     private static void mostrarHistorico(List<String> historico) {
